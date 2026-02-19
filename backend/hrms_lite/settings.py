@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -51,13 +52,30 @@ TEMPLATES = [
 WSGI_APPLICATION = 'hrms_lite.wsgi.application'
 ASGI_APPLICATION = 'hrms_lite.asgi.application'
 
-db_path = '/tmp/db.sqlite3' if os.getenv('VERCEL') else str(BASE_DIR / 'db.sqlite3')
+NEON_DATABASE_URL = (
+    'postgresql://neondb_owner:npg_Frl6VHRjaL1z@'
+    'ep-purple-sound-aifudf4j-pooler.c-4.us-east-1.aws.neon.tech/'
+    'neondb?sslmode=require&channel_binding=require'
+)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': db_path,
+
+def _postgres_from_url(db_url: str) -> dict:
+    parsed = urlparse(db_url)
+    query_options = {k: v[-1] for k, v in parse_qs(parsed.query).items()}
+    return {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': parsed.path.lstrip('/'),
+        'USER': parsed.username or '',
+        'PASSWORD': parsed.password or '',
+        'HOST': parsed.hostname or '',
+        'PORT': str(parsed.port or 5432),
+        'OPTIONS': query_options,
+        'CONN_MAX_AGE': 60,
     }
+
+DATABASE_URL = os.getenv('DATABASE_URL', NEON_DATABASE_URL)
+DATABASES = {
+    'default': _postgres_from_url(DATABASE_URL)
 }
 
 AUTH_PASSWORD_VALIDATORS = []
