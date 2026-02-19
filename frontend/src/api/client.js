@@ -1,5 +1,6 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || 'http://127.0.0.1:8000/api';
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ||
+  'https://etharabackend-phi.vercel.app/api';
 
 async function request(path, options = {}) {
   let response;

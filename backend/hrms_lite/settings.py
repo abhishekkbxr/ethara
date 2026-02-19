@@ -51,9 +51,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'hrms_lite.wsgi.application'
 ASGI_APPLICATION = 'hrms_lite.asgi.application'
 
-db_path = os.getenv('SQLITE_PATH')
-if not db_path:
-    db_path = '/tmp/db.sqlite3' if os.getenv('VERCEL') else str(BASE_DIR / 'db.sqlite3')
+db_path = '/tmp/db.sqlite3' if os.getenv('VERCEL') else str(BASE_DIR / 'db.sqlite3')
 
 DATABASES = {
     'default': {
